@@ -1,0 +1,4 @@
+import {ReactNode} from "react";
+import {getLocale,getTranslations} from "next-intl/server";
+import {Link} from "@/i18n/navigation";
+export async function AuthShell({title,children}:{title:string;children:ReactNode}){const t=await getTranslations();const locale=await getLocale();return <main className="auth-page"><section className="auth-story"><div className="brand"><div className="brand-mark">Y</div><span>{t("brand")}</span></div><div className="story-copy"><h1>{t("portal")}</h1><p>{t("subtitle")}</p></div><small>Prishtina · Kosovo</small></section><section className="auth-panel"><Link className="language" href="/login" locale={locale==="sq"?"en":"sq"}>{t("language")}</Link><div className="auth-card"><span className="eyebrow">{t("brand")}</span><h2>{title}</h2><p className="intro">{t("secure")}</p>{children}</div></section></main>}

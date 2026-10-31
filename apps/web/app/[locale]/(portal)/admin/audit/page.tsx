@@ -1,0 +1,1 @@
+import {getTranslations} from "next-intl/server";import {AdminTable} from "@/components/admin-table";export default async function Page(){const t=await getTranslations();return <AdminTable title={t("audit")} description="Append-only activity history" endpoint="/admin/audit-events" columns={["occurred_at","action","outcome","reason"]}/>}

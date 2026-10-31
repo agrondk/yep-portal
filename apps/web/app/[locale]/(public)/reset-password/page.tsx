@@ -1,0 +1,1 @@
+import {AuthShell} from "@/components/auth-shell";export default function Page(){return <AuthShell title="Reset password"><div className="notice">Use the secure reset link sent to your email.</div></AuthShell>}

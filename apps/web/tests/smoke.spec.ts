@@ -1,0 +1,1 @@
+import {expect,test} from "@playwright/test";test("Albanian sign-in shell loads",async({page})=>{await page.goto("/sq/login");await expect(page.getByRole("heading",{name:"Mirë se erdhe"})).toBeVisible();await expect(page.getByLabel("Email")).toBeVisible()});

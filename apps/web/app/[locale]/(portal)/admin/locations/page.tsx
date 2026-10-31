@@ -1,0 +1,1 @@
+import {getTranslations} from "next-intl/server";import {AdminTable} from "@/components/admin-table";export default async function Page(){const t=await getTranslations();return <AdminTable title={t("locations")} description="Learning and partner locations" endpoint="/admin/locations" columns={["name","type","active"]}/>}

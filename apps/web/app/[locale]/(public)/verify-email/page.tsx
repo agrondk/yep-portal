@@ -1,0 +1,1 @@
+import {AuthShell} from "@/components/auth-shell";export default function Page(){return <AuthShell title="Verify email"><div className="notice">Open the verification link sent to your email.</div></AuthShell>}

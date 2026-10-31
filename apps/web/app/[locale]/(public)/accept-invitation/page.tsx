@@ -1,0 +1,1 @@
+import {AuthShell} from "@/components/auth-shell";export default function Page(){return <AuthShell title="Accept invitation"><div className="notice">Your invitation is ready to be accepted.</div></AuthShell>}

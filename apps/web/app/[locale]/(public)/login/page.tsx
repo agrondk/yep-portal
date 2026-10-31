@@ -1,0 +1,1 @@
+import {getTranslations} from "next-intl/server";import {AuthForm} from "@/components/auth-form";import {AuthShell} from "@/components/auth-shell";export default async function Page(){const t=await getTranslations();return <AuthShell title={t("welcome")}><AuthForm mode="login"/></AuthShell>}

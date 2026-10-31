@@ -1,0 +1,1 @@
+import {getTranslations} from "next-intl/server";import {AdminTable} from "@/components/admin-table";export default async function Page(){const t=await getTranslations();return <AdminTable title={t("users")} description="Role and access overview" endpoint="/admin/users" columns={["email","status","locale"]}/>}
