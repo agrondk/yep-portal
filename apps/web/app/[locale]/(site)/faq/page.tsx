@@ -1,0 +1,4 @@
+import {getTranslations} from "next-intl/server";
+const apiUrl=process.env.NEXT_PUBLIC_API_URL??"http://127.0.0.1:8000/api/v1";
+type Faq={id:string;question_sq:string;question_en:string;answer_sq:string;answer_en:string};
+export default async function FaqPage({params}:{params:Promise<{locale:string}>}){const {locale}=await params;const t=await getTranslations();const response=await fetch(`${apiUrl}/public/faqs`,{cache:"no-store"}).catch(()=>null);const rows=response?.ok?await response.json() as Faq[]:[];return <section className="faq-page"><span className="public-kicker">FAQ</span><h1>{t("faqTitle")}</h1><p>{t("faqIntro")}</p><div className="faq-list">{rows.length?rows.map(row=><details key={row.id}><summary>{locale==="sq"?row.question_sq:row.question_en}</summary><p>{locale==="sq"?row.answer_sq:row.answer_en}</p></details>):<div className="catalog-empty"><h3>{t("faqEmpty")}</h3><p>{t("contactInstead")}</p></div>}</div></section>}

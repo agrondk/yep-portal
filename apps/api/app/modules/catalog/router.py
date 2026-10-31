@@ -1,7 +1,7 @@
 import uuid
 from datetime import UTC, datetime
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 from sqlalchemy import select
 from sqlalchemy.orm import Session, selectinload
 
@@ -9,14 +9,26 @@ from app.core import audit
 from app.core.authorization import PermissionContext, ScopeService, require_permission
 from app.core.database import get_db
 from app.core.errors import AppError
-from app.modules.catalog.models import Offering, Program, ProgramConfirmation, ProgramStatus, Room
+from app.modules.catalog.models import (
+    Faq,
+    Offering,
+    OfferingLanguage,
+    Program,
+    ProgramCategory,
+    ProgramConfirmation,
+    ProgramStatus,
+    Room,
+)
 from app.modules.catalog.schemas import (
     ConfirmationUpdate,
+    FaqCreate,
+    FaqResponse,
     OfferingCreate,
     OfferingResponse,
     ProgramCreate,
     ProgramResponse,
     ProgramUpdate,
+    PublicOfferingResponse,
     RoomCreate,
     RoomResponse,
 )
@@ -29,6 +41,21 @@ public_router = APIRouter(tags=["public catalog"])
 
 def program_response(row: Program) -> ProgramResponse:
     return ProgramResponse.model_validate(row, from_attributes=True)
+
+
+def public_offering_response(row: Offering) -> PublicOfferingResponse:
+    values = OfferingResponse.model_validate(row, from_attributes=True).model_dump()
+    return PublicOfferingResponse(
+        **values,
+        program_slug=row.program.slug,
+        program_name_sq=row.program.name_sq,
+        program_name_en=row.program.name_en,
+        program_category=row.program.category,
+        description_sq=row.program.description_sq,
+        description_en=row.program.description_en,
+        learning_objectives_sq=row.program.learning_objectives_sq,
+        learning_objectives_en=row.program.learning_objectives_en,
+    )
 
 
 @router.get("/programs", response_model=list[ProgramResponse])
@@ -219,9 +246,92 @@ def edit_offering(
     return OfferingResponse.model_validate(row, from_attributes=True)
 
 
-@public_router.get("/public/offerings", response_model=list[OfferingResponse])
-def public_offerings(db: Session = Depends(get_db)) -> list[OfferingResponse]:
-    return [
-        OfferingResponse.model_validate(row, from_attributes=True)
-        for row in db.scalars(public_offerings_statement())
-    ]
+@public_router.get("/public/offerings", response_model=list[PublicOfferingResponse])
+def public_offerings(
+    age: int | None = Query(default=None, ge=0, le=99),
+    category: ProgramCategory | None = None,
+    location: uuid.UUID | None = None,
+    language: OfferingLanguage | None = None,
+    db: Session = Depends(get_db),
+) -> list[PublicOfferingResponse]:
+    statement = public_offerings_statement()
+    if age is not None:
+        statement = statement.where(Offering.age_min <= age, Offering.age_max >= age)
+    if category is not None:
+        statement = statement.where(Program.category == category)
+    if location is not None:
+        statement = statement.where(Offering.location_id == location)
+    if language is not None:
+        statement = statement.where(Offering.language.in_([language, OfferingLanguage.MIXED]))
+    return [public_offering_response(row) for row in db.scalars(statement)]
+
+
+@public_router.get("/public/offerings/{slug}", response_model=PublicOfferingResponse)
+def public_offering_detail(slug: str, db: Session = Depends(get_db)) -> PublicOfferingResponse:
+    row = db.scalar(public_offerings_statement().where(Offering.slug == slug))
+    if row is None:
+        raise AppError("OFFERING_NOT_FOUND", "Offering not found.", 404)
+    return public_offering_response(row)
+
+
+@public_router.get("/public/faqs", response_model=list[FaqResponse])
+def public_faqs(db: Session = Depends(get_db)) -> list[FaqResponse]:
+    rows = db.scalars(select(Faq).where(Faq.published.is_(True)).order_by(Faq.order, Faq.id))
+    return [FaqResponse.model_validate(row, from_attributes=True) for row in rows]
+
+
+@router.get("/faqs", response_model=list[FaqResponse])
+def list_faqs(
+    _permission: PermissionContext = Depends(require_permission("catalog.faq.view")),
+    db: Session = Depends(get_db),
+) -> list[FaqResponse]:
+    rows = db.scalars(select(Faq).order_by(Faq.order, Faq.id))
+    return [FaqResponse.model_validate(row, from_attributes=True) for row in rows]
+
+
+@router.post("/faqs", response_model=FaqResponse, status_code=201)
+def create_faq(
+    body: FaqCreate,
+    permission: PermissionContext = Depends(require_permission("catalog.faq.create")),
+    db: Session = Depends(get_db),
+) -> FaqResponse:
+    row = Faq(**body.model_dump(), created_at=datetime.now(UTC))
+    db.add(row)
+    db.flush()
+    audit.record(
+        db,
+        audit.AuditInput(
+            action="faq.created",
+            actor_id=permission.auth.user.id,
+            entity_type="faq",
+            entity_id=row.id,
+        ),
+    )
+    db.commit()
+    db.refresh(row)
+    return FaqResponse.model_validate(row, from_attributes=True)
+
+
+@router.put("/faqs/{faq_id}", response_model=FaqResponse)
+def edit_faq(
+    faq_id: uuid.UUID,
+    body: FaqCreate,
+    permission: PermissionContext = Depends(require_permission("catalog.faq.edit")),
+    db: Session = Depends(get_db),
+) -> FaqResponse:
+    row = db.get(Faq, faq_id)
+    if row is None:
+        raise AppError("FAQ_NOT_FOUND", "FAQ not found.", 404)
+    for key, value in body.model_dump().items():
+        setattr(row, key, value)
+    audit.record(
+        db,
+        audit.AuditInput(
+            action="faq.edited",
+            actor_id=permission.auth.user.id,
+            entity_type="faq",
+            entity_id=row.id,
+        ),
+    )
+    db.commit()
+    return FaqResponse.model_validate(row, from_attributes=True)

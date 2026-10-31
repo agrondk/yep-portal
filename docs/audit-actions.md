@@ -14,4 +14,4 @@ Denied and failed actions are persisted through a separate database transaction 
 `program.created`, `program.edited`, `program.confirmed`, `program.archived`,
 `offering.created`, `offering.edited`, `offering.published`, `offering.unpublished`,
 `inquiry.received`, `inquiry.assigned`, `inquiry.transitioned`, `trial.scheduled`,
-`trial.transitioned`.
+`trial.transitioned`, `faq.created`, `faq.edited`.

@@ -20,6 +20,9 @@ CATALOG_PERMISSIONS: dict[Role, frozenset[str]] = {
             "catalog.trial.view",
             "catalog.trial.schedule",
             "catalog.trial.transition",
+            "catalog.faq.view",
+            "catalog.faq.create",
+            "catalog.faq.edit",
         }
     ),
     Role.FINANCE_OFFICER: frozenset(

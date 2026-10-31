@@ -218,3 +218,14 @@ class TrialBooking(Base, TimestampMixin):
     outcome_note: Mapped[str | None] = mapped_column(Text)
     inquiry: Mapped[Inquiry] = relationship()
     offering: Mapped[Offering] = relationship()
+
+
+class Faq(Base, TimestampMixin):
+    __tablename__ = "faq"
+    id: Mapped[uuid.UUID] = uuid_pk()
+    question_sq: Mapped[str] = mapped_column(String(500))
+    question_en: Mapped[str] = mapped_column(String(500))
+    answer_sq: Mapped[str] = mapped_column(Text)
+    answer_en: Mapped[str] = mapped_column(Text)
+    order: Mapped[int] = mapped_column(Integer, default=0)
+    published: Mapped[bool] = mapped_column(Boolean, default=False)

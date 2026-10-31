@@ -434,6 +434,41 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/faqs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Faqs */
+        get: operations["list_faqs_api_v1_faqs_get"];
+        put?: never;
+        /** Create Faq */
+        post: operations["create_faq_api_v1_faqs_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/faqs/{faq_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Edit Faq */
+        put: operations["edit_faq_api_v1_faqs__faq_id__put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/public/offerings": {
         parameters: {
             query?: never;
@@ -443,6 +478,40 @@ export interface paths {
         };
         /** Public Offerings */
         get: operations["public_offerings_api_v1_public_offerings_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/public/offerings/{slug}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Public Offering Detail */
+        get: operations["public_offering_detail_api_v1_public_offerings__slug__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/public/faqs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Public Faqs */
+        get: operations["public_faqs_api_v1_public_faqs_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -694,6 +763,53 @@ export interface components {
          * @enum {string}
          */
         DeliveryType: "physical_build" | "screen_based" | "mixed";
+        /** FaqCreate */
+        FaqCreate: {
+            /** Question Sq */
+            question_sq: string;
+            /** Question En */
+            question_en: string;
+            /** Answer Sq */
+            answer_sq: string;
+            /** Answer En */
+            answer_en: string;
+            /**
+             * Order
+             * @default 0
+             */
+            order: number;
+            /**
+             * Published
+             * @default false
+             */
+            published: boolean;
+        };
+        /** FaqResponse */
+        FaqResponse: {
+            /** Question Sq */
+            question_sq: string;
+            /** Question En */
+            question_en: string;
+            /** Answer Sq */
+            answer_sq: string;
+            /** Answer En */
+            answer_en: string;
+            /**
+             * Order
+             * @default 0
+             */
+            order: number;
+            /**
+             * Published
+             * @default false
+             */
+            published: boolean;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+        };
         /**
          * FeeModel
          * @enum {string}
@@ -1250,6 +1366,93 @@ export interface components {
             /** Learning Objectives En */
             learning_objectives_en?: string | null;
             delivery?: components["schemas"]["DeliveryType"] | null;
+        };
+        /** PublicOfferingResponse */
+        PublicOfferingResponse: {
+            /** Slug */
+            slug: string;
+            /**
+             * Program Id
+             * Format: uuid
+             */
+            program_id: string;
+            /**
+             * Location Id
+             * Format: uuid
+             */
+            location_id: string;
+            /** Partner Id */
+            partner_id?: string | null;
+            /** Title Sq */
+            title_sq?: string | null;
+            /** Title En */
+            title_en?: string | null;
+            language: components["schemas"]["OfferingLanguage"];
+            /** Age Min */
+            age_min: number;
+            /** Age Max */
+            age_max: number;
+            /**
+             * Age Reference Date
+             * Format: date
+             */
+            age_reference_date: string;
+            /**
+             * Start Date
+             * Format: date
+             */
+            start_date: string;
+            /**
+             * End Date
+             * Format: date
+             */
+            end_date: string;
+            /** Session Minutes */
+            session_minutes: number;
+            /** Sessions Planned */
+            sessions_planned: number;
+            /** Capacity */
+            capacity: number;
+            fee_model: components["schemas"]["FeeModel"];
+            /** List Price */
+            list_price?: string | null;
+            /**
+             * Currency
+             * @default EUR
+             */
+            currency: string;
+            /** @default draft */
+            visibility: components["schemas"]["OfferingVisibility"];
+            /**
+             * Registration Open
+             * @default false
+             */
+            registration_open: boolean;
+            /**
+             * Waitlist Enabled
+             * @default false
+             */
+            waitlist_enabled: boolean;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Program Slug */
+            program_slug: string;
+            /** Program Name Sq */
+            program_name_sq: string;
+            /** Program Name En */
+            program_name_en: string;
+            program_category: components["schemas"]["ProgramCategory"];
+            /** Description Sq */
+            description_sq: string | null;
+            /** Description En */
+            description_en: string | null;
+            /** Learning Objectives Sq */
+            learning_objectives_sq: string | null;
+            /** Learning Objectives En */
+            learning_objectives_en: string | null;
         };
         /** RegisterRequest */
         RegisterRequest: {
@@ -2502,7 +2705,175 @@ export interface operations {
             };
         };
     };
+    list_faqs_api_v1_faqs_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: {
+                yep_session?: string | null;
+            };
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FaqResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_faq_api_v1_faqs_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: {
+                yep_session?: string | null;
+            };
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FaqCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FaqResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    edit_faq_api_v1_faqs__faq_id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                faq_id: string;
+            };
+            cookie?: {
+                yep_session?: string | null;
+            };
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FaqCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FaqResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     public_offerings_api_v1_public_offerings_get: {
+        parameters: {
+            query?: {
+                age?: number | null;
+                category?: components["schemas"]["ProgramCategory"] | null;
+                location?: string | null;
+                language?: components["schemas"]["OfferingLanguage"] | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PublicOfferingResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    public_offering_detail_api_v1_public_offerings__slug__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PublicOfferingResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    public_faqs_api_v1_public_faqs_get: {
         parameters: {
             query?: never;
             header?: never;
@@ -2517,7 +2888,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["OfferingResponse"][];
+                    "application/json": components["schemas"]["FaqResponse"][];
                 };
             };
         };

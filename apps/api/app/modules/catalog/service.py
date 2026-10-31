@@ -2,7 +2,7 @@ import uuid
 from datetime import UTC, datetime
 
 from sqlalchemy import Select, and_, select
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, selectinload
 
 from app.core.errors import AppError
 from app.modules.catalog.models import (
@@ -18,6 +18,7 @@ from app.modules.core.models import Role
 def public_offerings_statement() -> Select[Offering]:
     return (
         select(Offering)
+        .options(selectinload(Offering.program))
         .join(Program, Offering.program_id == Program.id)
         .join(ProgramConfirmation, ProgramConfirmation.program_id == Program.id)
         .where(

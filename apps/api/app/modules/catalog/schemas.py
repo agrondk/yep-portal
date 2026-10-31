@@ -118,6 +118,30 @@ class OfferingResponse(OfferingCreate):
     id: uuid.UUID
 
 
+class PublicOfferingResponse(OfferingResponse):
+    program_slug: str
+    program_name_sq: str
+    program_name_en: str
+    program_category: ProgramCategory
+    description_sq: str | None
+    description_en: str | None
+    learning_objectives_sq: str | None
+    learning_objectives_en: str | None
+
+
+class FaqCreate(BaseModel):
+    question_sq: str = Field(min_length=2, max_length=500)
+    question_en: str = Field(min_length=2, max_length=500)
+    answer_sq: str = Field(min_length=2, max_length=8000)
+    answer_en: str = Field(min_length=2, max_length=8000)
+    order: int = Field(default=0, ge=0)
+    published: bool = False
+
+
+class FaqResponse(FaqCreate):
+    id: uuid.UUID
+
+
 class InquiryCreate(BaseModel):
     name: str = Field(min_length=2, max_length=160)
     email: str = Field(pattern=r"^[^\s@]+@[^\s@]+\.[^\s@]+$", max_length=320)
