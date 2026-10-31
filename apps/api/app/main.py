@@ -8,6 +8,8 @@ from app.core.database import get_db
 from app.core.errors import register_error_handlers
 from app.core.idempotency_middleware import IdempotencyMiddleware
 from app.core.request_id import RequestIdMiddleware
+from app.modules.catalog.engagement_router import public_router as engagement_public_router
+from app.modules.catalog.engagement_router import router as engagement_router
 from app.modules.catalog.router import public_router as catalog_public_router
 from app.modules.catalog.router import router as catalog_router
 from app.modules.core.access_router import router as access_router
@@ -32,6 +34,8 @@ app.include_router(access_router, prefix=settings.api_v1_prefix)
 app.include_router(operations_router, prefix=settings.api_v1_prefix)
 app.include_router(catalog_router, prefix=settings.api_v1_prefix)
 app.include_router(catalog_public_router, prefix=settings.api_v1_prefix)
+app.include_router(engagement_router, prefix=settings.api_v1_prefix)
+app.include_router(engagement_public_router, prefix=settings.api_v1_prefix)
 
 
 @app.get("/health/live", response_model=HealthResponse, tags=["health"])

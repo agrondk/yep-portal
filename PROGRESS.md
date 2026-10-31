@@ -2,14 +2,14 @@
 
 ## Current position
 - Module: M01
-- Next sub-step: B
-- Last updated: 2026-10-31
+- Next sub-step: C
+- Last updated: 2026-11-01
 
 ## Module status
 | Module | Status | Sub-steps done | Tests passing | Notes |
 | --- | --- | --- | --- | --- |
 | M00 Foundation | done | A, B, C, D, E | API health, migrations, Ruff, TypeScript and Next build passing | MinIO registry pull remains external blocker |
-| M01 Catalog & public site | in progress | A | Ruff, mypy, catalog rules and migration passing | Programs, offerings and rooms foundation |
+| M01 Catalog & public site | in progress | A, B | 20 API tests, Ruff, mypy, migration and Next build passing | Catalog plus inquiry and trial workflows |
 | M02–M21 | todo | | | See `YEP_Portal_Prompts/00_README_HOW_TO_USE.md` |
 
 ## Key files
@@ -26,6 +26,7 @@
 - 2026-10-26: User explicitly approved proceeding through M00-D, M00-E and into M01.
 - 2026-10-26: M00 permissions are declared in code and the documentation is generated from that declaration.
 - 2026-10-31: M01 catalog records are seeded as drafts with all confirmation flags false; Web Development is explicitly proposed.
+- 2026-11-01: Public inquiry/trial submissions use honeypot and per-IP rate limits; staff workflows use explicit one-way state machines and audit every assignment, schedule and transition.
 
 ## Incomplete / known gaps
 - Official MinIO images currently return a registry `401`; private-file unit behavior is verified, but the MinIO container is not running.
@@ -40,6 +41,7 @@
 - 2026-10-31: Docker/WSL healthy; PostgreSQL 16, test PostgreSQL, Redis and Mailpit started; Alembic reached `20261031_0003 (head)`; `/health/live` and `/health/ready` returned `ok`.
 - 2026-10-31: M00-E generated the OpenAPI TypeScript contract, passed strict TypeScript checking, produced a successful Next.js 15 production build, and served `/sq/login` with HTTP 200.
 - 2026-10-31: M01-A passed Ruff and strict mypy; three catalog rule tests passed; Alembic reached `20261031_0004 (head)`; seven draft programs were verified in PostgreSQL; the regenerated TypeScript contract contains the catalog routes; the public endpoint returned zero offerings, confirming drafts are hidden.
+- 2026-11-01: M01-B passed all 20 API tests, Ruff and strict mypy; Alembic reached `20261031_0005 (head)`; eight inquiry/trial routes were verified in OpenAPI; the TypeScript contract was regenerated and the Next.js production build passed.
 
 ## Blockers needing the owner
 - None for M01. Resolve the external MinIO registry access before exercising live file uploads.

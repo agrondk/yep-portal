@@ -7,10 +7,12 @@ from pydantic import BaseModel, Field, model_validator
 from app.modules.catalog.models import (
     DeliveryType,
     FeeModel,
+    InquiryStatus,
     OfferingLanguage,
     OfferingVisibility,
     ProgramCategory,
     ProgramStatus,
+    TrialStatus,
 )
 
 
@@ -114,3 +116,74 @@ class OfferingCreate(BaseModel):
 
 class OfferingResponse(OfferingCreate):
     id: uuid.UUID
+
+
+class InquiryCreate(BaseModel):
+    name: str = Field(min_length=2, max_length=160)
+    email: str = Field(pattern=r"^[^\s@]+@[^\s@]+\.[^\s@]+$", max_length=320)
+    phone: str | None = Field(default=None, max_length=50)
+    child_age: int | None = Field(default=None, ge=0, le=99)
+    program_id: uuid.UUID | None = None
+    message: str | None = Field(default=None, max_length=4000)
+    source: str = Field(default="website", min_length=1, max_length=80)
+    utm_source: str | None = Field(default=None, max_length=160)
+    utm_medium: str | None = Field(default=None, max_length=160)
+    utm_campaign: str | None = Field(default=None, max_length=160)
+    utm_content: str | None = Field(default=None, max_length=160)
+    promo_code: str | None = Field(default=None, max_length=80)
+    heard_about_us: str | None = Field(default=None, max_length=160)
+    website: str = Field(default="", max_length=200, exclude=True)
+
+
+class InquiryResponse(BaseModel):
+    id: uuid.UUID
+    name: str
+    email: str
+    phone: str | None
+    child_age: int | None
+    program_id: uuid.UUID | None
+    message: str | None
+    source: str
+    status: InquiryStatus
+    assigned_to: uuid.UUID | None
+    closed_reason: str | None
+    created_at: datetime
+
+
+class InquiryAssign(BaseModel):
+    assigned_to: uuid.UUID
+
+
+class InquiryTransition(BaseModel):
+    status: InquiryStatus
+    closed_reason: str | None = Field(default=None, max_length=2000)
+
+    @model_validator(mode="after")
+    def closed_requires_reason(self) -> "InquiryTransition":
+        if self.status is InquiryStatus.CLOSED and not self.closed_reason:
+            raise ValueError("closed_reason is required when closing an inquiry")
+        return self
+
+
+class TrialRequestCreate(InquiryCreate):
+    offering_id: uuid.UUID
+    date_time: datetime
+
+
+class TrialBookingResponse(BaseModel):
+    id: uuid.UUID
+    inquiry_id: uuid.UUID
+    offering_id: uuid.UUID
+    date_time: datetime
+    status: TrialStatus
+    outcome_note: str | None
+    created_at: datetime
+
+
+class TrialSchedule(BaseModel):
+    date_time: datetime
+
+
+class TrialTransition(BaseModel):
+    status: TrialStatus
+    outcome_note: str | None = Field(default=None, max_length=4000)

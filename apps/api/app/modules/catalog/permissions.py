@@ -14,6 +14,12 @@ CATALOG_PERMISSIONS: dict[Role, frozenset[str]] = {
             "catalog.room.view",
             "catalog.room.create",
             "catalog.room.edit",
+            "catalog.inquiry.view",
+            "catalog.inquiry.assign",
+            "catalog.inquiry.transition",
+            "catalog.trial.view",
+            "catalog.trial.schedule",
+            "catalog.trial.transition",
         }
     ),
     Role.FINANCE_OFFICER: frozenset(

@@ -54,6 +54,22 @@ class OfferingVisibility(enum.StrEnum):
     PUBLISHED = "published"
 
 
+class InquiryStatus(enum.StrEnum):
+    NEW = "new"
+    CONTACTED = "contacted"
+    TRIAL_BOOKED = "trial_booked"
+    CONVERTED = "converted"
+    CLOSED = "closed"
+
+
+class TrialStatus(enum.StrEnum):
+    REQUESTED = "requested"
+    SCHEDULED = "scheduled"
+    ATTENDED = "attended"
+    NO_SHOW = "no_show"
+    CANCELLED = "cancelled"
+
+
 class Program(Base, TimestampMixin):
     __tablename__ = "program"
     id: Mapped[uuid.UUID] = uuid_pk()
@@ -155,3 +171,50 @@ class Offering(Base, TimestampMixin):
     registration_open: Mapped[bool] = mapped_column(Boolean, default=False)
     waitlist_enabled: Mapped[bool] = mapped_column(Boolean, default=False)
     program: Mapped[Program] = relationship()
+
+
+class Inquiry(Base, TimestampMixin):
+    __tablename__ = "inquiry"
+    id: Mapped[uuid.UUID] = uuid_pk()
+    name: Mapped[str] = mapped_column(String(160))
+    email: Mapped[str] = mapped_column(String(320), index=True)
+    phone: Mapped[str | None] = mapped_column(String(50))
+    child_age: Mapped[int | None] = mapped_column(Integer)
+    program_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("program.id"), index=True)
+    message: Mapped[str | None] = mapped_column(Text)
+    source: Mapped[str] = mapped_column(String(80), default="website")
+    utm_source: Mapped[str | None] = mapped_column(String(160))
+    utm_medium: Mapped[str | None] = mapped_column(String(160))
+    utm_campaign: Mapped[str | None] = mapped_column(String(160))
+    utm_content: Mapped[str | None] = mapped_column(String(160))
+    promo_code: Mapped[str | None] = mapped_column(String(80))
+    heard_about_us: Mapped[str | None] = mapped_column(String(160))
+    status: Mapped[InquiryStatus] = mapped_column(
+        Enum(
+            InquiryStatus,
+            name="inquiry_status",
+            values_callable=lambda items: [item.value for item in items],
+        ),
+        default=InquiryStatus.NEW,
+    )
+    assigned_to: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("user_account.id"), index=True)
+    closed_reason: Mapped[str | None] = mapped_column(Text)
+
+
+class TrialBooking(Base, TimestampMixin):
+    __tablename__ = "trial_booking"
+    id: Mapped[uuid.UUID] = uuid_pk()
+    inquiry_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("inquiry.id"), index=True)
+    offering_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("offering.id"), index=True)
+    date_time: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    status: Mapped[TrialStatus] = mapped_column(
+        Enum(
+            TrialStatus,
+            name="trial_status",
+            values_callable=lambda items: [item.value for item in items],
+        ),
+        default=TrialStatus.REQUESTED,
+    )
+    outcome_note: Mapped[str | None] = mapped_column(Text)
+    inquiry: Mapped[Inquiry] = relationship()
+    offering: Mapped[Offering] = relationship()
